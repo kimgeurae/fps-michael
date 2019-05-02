@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerBehaviourScript : MonoBehaviour
 {
@@ -23,6 +25,7 @@ public class PlayerBehaviourScript : MonoBehaviour
 
     #region State Variables.
     private bool isGrounded = false;
+    private bool disableInput = false;
     #endregion
 
     #region Reference Variables.
@@ -30,6 +33,7 @@ public class PlayerBehaviourScript : MonoBehaviour
     private GameObject _player;
     private GameObject _groundCheck;
     private GameObject _fpscam;
+    private GameObject deathText;
     #endregion
 
     #region Health Variables.
@@ -38,6 +42,11 @@ public class PlayerBehaviourScript : MonoBehaviour
     [Tooltip("Maximum Player Health")]
     public int maxHealth = 100;
     private int health;
+    private Slider healthBar;
+    #endregion
+
+    #region Respawn
+    private Vector3 spawnPosition;
     #endregion
 
     void Start()
@@ -53,12 +62,18 @@ public class PlayerBehaviourScript : MonoBehaviour
         _groundCheck = this.transform.parent.transform.GetChild(4).gameObject;
         _fpscam = this.transform.parent.transform.GetChild(3).gameObject;
         health = maxHealth;
+        healthBar = GameObject.FindGameObjectWithTag("HpBar").GetComponent<Slider>();
+        healthBar.value = health;
+        deathText = GameObject.FindGameObjectWithTag("DeathTxt");
+        deathText.SetActive(false);
+        spawnPosition = transform.parent.position;
     }
 
     void Update()
     {
         CustomPhysics();
-        CheckForPlayerInput();
+        if (!disableInput)
+            CheckForPlayerInput();
         UpdateHealthBarAndCheckPlayerDeath();
     }
 
@@ -145,9 +160,10 @@ public class PlayerBehaviourScript : MonoBehaviour
     public void ReceivedDmg(int dmg)
     {
         health -= dmg;
+        healthBar.value = health;
     }
 
-    void UpdateHealthBarAndCheckPlayerDeath()
+    private void UpdateHealthBarAndCheckPlayerDeath()
     {
         if (health > 0)
         {
@@ -155,8 +171,41 @@ public class PlayerBehaviourScript : MonoBehaviour
         }
         else
         {
-            Destroy(transform.parent.gameObject);
+            disableInput = true;
+            healthBar.value = 0;
+            deathText.SetActive(true);
+            StartCoroutine("Respawn");
+            
+            //Destroy(transform.parent.gameObject, 3);
         }
+    }
+
+    public void SetRespawn(float x, float y, float z)
+    {
+        spawnPosition = new Vector3(x, y, z);
+    }
+
+    private void ResetLifeData()
+    {
+        health = maxHealth;
+    }
+
+    private IEnumerator Respawn()
+    {
+        yield return new WaitForSeconds(5);
+        if (lives <= 0)
+            SceneManager.LoadScene(SceneManager.GetActiveScene().ToString());
+        else
+        {
+            transform.parent.position = spawnPosition;
+            ResetLifeData();
+            lives--;
+            deathText.SetActive(false);
+            disableInput = false;
+            Debug.Log("Test Respawn");
+            Debug.Log(lives);
+        }
+        yield break;
     }
 
 }
