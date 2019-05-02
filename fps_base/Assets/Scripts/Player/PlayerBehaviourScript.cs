@@ -32,6 +32,14 @@ public class PlayerBehaviourScript : MonoBehaviour
     private GameObject _fpscam;
     #endregion
 
+    #region Health Variables.
+    [Tooltip("Max Player Lives.")]
+    public int lives;
+    [Tooltip("Maximum Player Health")]
+    public int maxHealth = 100;
+    private int health;
+    #endregion
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -44,12 +52,14 @@ public class PlayerBehaviourScript : MonoBehaviour
         _charController = _player.GetComponent<CharacterController>();
         _groundCheck = this.transform.parent.transform.GetChild(4).gameObject;
         _fpscam = this.transform.parent.transform.GetChild(3).gameObject;
+        health = maxHealth;
     }
 
     void Update()
     {
         CustomPhysics();
         CheckForPlayerInput();
+        UpdateHealthBarAndCheckPlayerDeath();
     }
 
     private void CheckForPlayerInput()
@@ -130,6 +140,23 @@ public class PlayerBehaviourScript : MonoBehaviour
     void AddRecoil(float vRecoilAmount, float hRecoilAmount, bool xdirection)
     {
         
+    }
+
+    public void ReceivedDmg(int dmg)
+    {
+        health -= dmg;
+    }
+
+    void UpdateHealthBarAndCheckPlayerDeath()
+    {
+        if (health > 0)
+        {
+
+        }
+        else
+        {
+            Destroy(transform.parent.gameObject);
+        }
     }
 
 }
