@@ -194,7 +194,7 @@ public class PlayerBehaviourScript : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
         if (lives <= 0)
-            SceneManager.LoadScene(SceneManager.GetActiveScene().ToString());
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         else
         {
             transform.parent.position = spawnPosition;
@@ -206,6 +206,20 @@ public class PlayerBehaviourScript : MonoBehaviour
             Debug.Log(lives);
         }
         yield break;
+    }
+
+    public void AddHealth(int amount)
+    {
+        if (amount + health > 100)
+        {
+            health = 100;
+            healthBar.value = health;
+        }
+        else
+        {
+            health = health + amount;
+            healthBar.value = health;
+        }
     }
 
 }

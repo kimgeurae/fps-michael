@@ -308,6 +308,11 @@ public class GunScript : MonoBehaviour
             scriptableObject.currentMagazineBullets -= shootsFired;
     }
 
+    public void AddAmmo(int amount)
+    {
+        scriptableObject.currentTotalBullets += amount;
+    }
+
     /*
     public Text displayBulletInfo;
     public Text displayDebugShootingMode;
